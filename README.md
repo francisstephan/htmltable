@@ -3,20 +3,20 @@
 A small tool I built for fun and out of pure lazyness (it's so boring to write html tables by hand...).
 Through CSV, the tool will also allow to convert between excel and html tables.
 
-The html to csv part is a bit tricky; I do accept for table, tr and td tags to have some classe or id or anything included, but I suppose that </table>, </tr> and </td> are present under this form. Also tags should be in small case (<tr>, not <TR>).
+The html to csv part is a bit tricky; I do accept that table, tr and td tags may have some class or id or anything included, but I suppose that `</table>, </tr> and </td>` are present under this form. Also tags should be in lower case (`<tr>`, not `<TR>`).
 
 ## Directions for use
 Program to build an html table from a list of lines with optional separator and conversely to convert html table to CSV (using comma or any separator character)
 
-Usage: htmltable [OPTIONS] --input <INPUT> --output <OUTPUT>
+Usage: htmltable [OPTIONS] --input `<INPUT>` --output `<OUTPUT>
 
 Options:
 
-  -i, --input <INPUT>          Path of input file, relative to current path
+  -i, --input `<INPUT>`        Path of input file, relative to current path
 
-  -o, --output <OUTPUT>        Path of output file, relative to current path
+  -o, --output `<OUTPUT>`        Path of output file, relative to current path
 
-  -s, --separator <SEPARATOR>  Character to be used as separator in lines of input file [default: " "]
+  -s, --separator `<SEPARATOR>`  Character to be used as separator in lines of input file [default: " "]
 
   -r, --reverse                Reverse mode (html to plain text with separator), default=false
 
