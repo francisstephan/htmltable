@@ -76,7 +76,6 @@ fn create_table(input: Vec<String>, outfile: &str, sep: char) {
 
 /// Parse html table and get csv (or equivalent with other separators)
 fn parse_html(infile: &str, outfile: &str, sep: char) {
-    let ssep = sep.to_string();
     // 1. read infile as a String:
     let mut content = read_to_string(infile).expect("Failed to read input file");
 
@@ -93,36 +92,27 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
 
     // 4. loop on lines
     while let Some(_i) = content.find("<tr") {
-        if let Some(i) = content.find("<td") {
-            content = content.get(i..).unwrap().to_string();
-        } else {
-            println!("Malformed html: no cell in row");
-            return;
-        }
-
         let mut line = String::new();
-        let iendline;
-        if let Some(i) = content.find("</tr>") {
-            line.push_str(content.get(..i).unwrap());
-            iendline = i;
-        } else {
-            println!("Malformed html: unterminated row");
-            return;
+
+        // 5. loop on cells within line:
+        while let Some(i) = content.find("<td") {
+            let iend = content.find("</tr>").unwrap();
+            println!("{} - {}", i, iend);
+            if i > iend {
+                content = content.get((iend + 5)..).unwrap().to_string();
+                break;
+            }
+            let re = Regex::new(r"<td[^>]*>([^<]*)</td>").unwrap();
+            let caps = re.captures(&content).unwrap();
+            line.push_str(&caps[1]);
+            line.push(sep);
+            println!("{}", line);
+            let i = content.find("</td>").unwrap();
+            content = content.get((i + 5)..).unwrap().to_string();
         }
 
-        // remove <td.. and replace </td> by sep:
-        let re = Regex::new(r"<td[^>]*>").unwrap();
-        line = re.replace_all(&line, "").into_owned();
-
-        line = str::replace(&line, "</td>", &ssep).to_string();
-        line = str::replace(&line, "\n", "").to_string();
-
-        // remove last element from line (unwanted sep):
-        let i = line.rfind(sep).unwrap();
-        line = line.get(..i).unwrap().to_string();
-
-        // remove line from content
-        content = content.get(iendline..).unwrap().to_string();
+        // remove last added separator:
+        line.pop();
 
         // write line to file:
         writeln!(ofil, "{}", &line).expect("Failed writing to output file");
