@@ -8,21 +8,21 @@ The html to csv part is a bit tricky; I do accept that table, tr and td tags may
 ## Directions for use
 Program to build an html table from a list of lines with optional separator and conversely to convert html table to CSV (using comma or any separator character)
 
-Usage: htmltable [OPTIONS] --input `<INPUT>` --output `<OUTPUT>
+Usage: htmltable [OPTIONS] --input `<INPUT>` --output `<OUTPUT>`
 
 Options:
 
-  -i, --input `<INPUT>`        Path of input file, relative to current path
+  -i, --input `<INPUT>`        : Path of input file, relative to current path
 
-  -o, --output `<OUTPUT>`        Path of output file, relative to current path
+  -o, --output `<OUTPUT>`        : Path of output file, relative to current path
 
-  -s, --separator `<SEPARATOR>`  Character to be used as separator in lines of input file [default: " "]
+  -s, --separator `<SEPARATOR>`  : Character to be used as separator in lines of input file [default: ' ']
 
-  -r, --reverse                Reverse mode (html to plain text with separator), default=false
+  -r, --reverse                : Reverse mode (html to plain text with separator), default=false
 
-  -h, --help                   Print help
+  -h, --help                   : Print help
 
-  -V, --version                Print version
+  -V, --version                : Print version
 
 Concerning the separator character (',' for CSV), make sure that this separator is not present in the cell text...
 
@@ -34,7 +34,7 @@ To test the program, try:
 
 cargo run -- -i romaji.txt -o romaji.html
 
-(using ' ', single space, as separator; in this case two spaces in a row mean one empty cell)
+(using the default ' ', single space, as separator; in this case two spaces in a row mean one empty cell)
 
 
 Then try to convert the resulting file to CSV:
