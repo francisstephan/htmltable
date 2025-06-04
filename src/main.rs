@@ -1,7 +1,7 @@
 use clap::Parser;
 use regex::Regex;
-use std::fs::read_to_string;
 use std::fs::File;
+use std::fs::read_to_string;
 use std::io::Write;
 use std::path::Path;
 
@@ -115,8 +115,9 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         line = re.replace_all(&line, "").into_owned();
 
         line = str::replace(&line, "</td>", &ssep).to_string();
+        line = str::replace(&line, "\n", "").to_string();
 
-        // remove last element (unwanted sep):
+        // remove last element from line (unwanted sep):
         let i = line.rfind(sep).unwrap();
         line = line.get(..i).unwrap().to_string();
 
