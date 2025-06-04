@@ -99,7 +99,7 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
             println!("Malformed html: no cell in row");
             return;
         }
-        println!("{}", &content);
+
         let mut line = String::new();
         let iendline;
         if let Some(i) = content.find("</tr>") {
@@ -125,5 +125,6 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
 
         // write line to file:
         writeln!(ofil, "{}", &line).expect("Failed writing to output file");
+        println!("{}", &line);
     }
 }
