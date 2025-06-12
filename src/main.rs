@@ -87,28 +87,40 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         return;
     }
 
-    // 3. create output file
+    // 3. eliminate anything after </table>
+    if let Some(i) = content.find("</table>") {
+        content = content.get(..i).unwrap().to_string();
+    } else {
+        println!("No </table> found in input file");
+        return;
+    }
+
+    // 4. eliminate all linefeed chars
+    content = content.replace("\n", "");
+
+    // 5. create output file
     let mut ofil = File::create(outfile).expect("Cannot create output file");
 
-    // 4. loop on lines
-    while let Some(_i) = content.find("<tr") {
+    // 6. split content as a vec of String lines
+    content = content.replace("</tr>", "\n");
+    let tablelines = content.lines();
+
+    // 7. prepare regex for cell parsing:
+    let re = Regex::new(r"<td[^>]*>([^<]*)</td>").unwrap();
+
+    // 8. loop on tablelines
+    for tableline in tablelines {
+        let mut tline = tableline.to_string();
+        // println!("{}", tline);
         let mut line = String::new();
 
-        // 5. loop on cells within line:
-        while let Some(i) = content.find("<td") {
-            let iend = content.find("</tr>").unwrap();
-            println!("{} - {}", i, iend);
-            if i > iend {
-                content = content.get((iend + 5)..).unwrap().to_string();
-                break;
-            }
-            let re = Regex::new(r"<td[^>]*>([^<]*)</td>").unwrap();
-            let caps = re.captures(&content).unwrap();
+        // 9. loop on cells within line:
+        while let Some(_) = tline.find("<td") {
+            let caps = re.captures(&tline).unwrap();
             line.push_str(&caps[1]);
             line.push(sep);
-            println!("{}", line);
-            let i = content.find("</td>").unwrap();
-            content = content.get((i + 5)..).unwrap().to_string();
+            let i = tline.find("</td>").unwrap();
+            tline = tline.get((i + 5)..).unwrap().to_string();
         }
 
         // remove last added separator:
