@@ -74,7 +74,7 @@ fn create_table(input: Vec<String>, outfile: &str, sep: char) {
     writeln!(ofil, "</table>").expect("Cannot write to file");
 }
 
-/// Parse html table and get csv (or equivalent with other separators)
+/// Parse html table and get plain text file with separator between elements
 fn parse_html(infile: &str, outfile: &str, sep: char) {
     // 1. read infile as a String:
     let mut content = read_to_string(infile).expect("Failed to read input file");
@@ -95,37 +95,41 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         return;
     }
 
-    // 4. eliminate all linefeed chars
-    content = content.replace("\n", "");
-
-    // 5. create output file
+    // 4. create output file
     let mut ofil = File::create(outfile).expect("Cannot create output file");
 
-    // 6. split content as a vec of String lines
+    // 5. split content as an iterator on &str lines
+    content = content.replace("\n", ""); // remove any line feed chars
     content = content.replace("</tr>", "\n");
     let tablelines = content.lines();
 
-    // 7. prepare regex for cell parsing:
+    // 6. prepare regex for cell parsing:
+    // The ([^<]*) group is the content of the html table cell
     let re = Regex::new(r"<td[^>]*>([^<]*)</td>").unwrap();
 
-    // 8. loop on tablelines
+    // 7. loop on tablelines
     for tableline in tablelines {
+        // tableline is an &str, but we need a mutable String here:
         let mut tline = tableline.to_string();
-        // println!("{}", tline);
-        let mut line = String::new();
+        let mut line = String::new(); // line will be one line of the output file
 
-        // 9. loop on cells within line:
+        // 8. loop on cells within line:
         while let Some(_) = tline.find("<td") {
-            let caps = re.captures(&tline).unwrap();
-            if caps.len() != 2 {
+            if let Some(caps) = re.captures(&tline) {
+                if caps.len() == 2 {
+                    line.push_str(&caps[1]); // push cell text to line
+                } else {
+                    println!("Could not capture cell text, line={}", tableline);
+                    return;
+                }
+            } else {
                 // no match found
-                println!("No closing </td> found in input file");
+                println!("Malformed html in input file, line={}", tableline);
                 return;
             }
-            line.push_str(&caps[1]);
-            line.push(sep);
+            line.push(sep); //  add separator
             let i = tline.find("</td>").unwrap(); // we know there is a </td>
-            tline = tline.get((i + 5)..).unwrap().to_string();
+            tline = tline.get((i + 5)..).unwrap().to_string(); // scrap processed part
         }
 
         // remove last added separator:
@@ -135,4 +139,5 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         writeln!(ofil, "{}", &line).expect("Failed writing to output file");
         println!("{}", &line);
     }
+    // No need to close files: they get closed when going out of scope
 }
