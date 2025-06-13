@@ -117,9 +117,14 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         // 9. loop on cells within line:
         while let Some(_) = tline.find("<td") {
             let caps = re.captures(&tline).unwrap();
+            if caps.len() != 2 {
+                // no match found
+                println!("No closing </td> found in input file");
+                return;
+            }
             line.push_str(&caps[1]);
             line.push(sep);
-            let i = tline.find("</td>").unwrap();
+            let i = tline.find("</td>").unwrap(); // we know there is a </td>
             tline = tline.get((i + 5)..).unwrap().to_string();
         }
 
