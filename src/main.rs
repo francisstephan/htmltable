@@ -75,6 +75,7 @@ fn create_table(input: Vec<String>, outfile: &str, sep: char) {
 }
 
 /// Parse html table and get plain text file with separator between elements
+/// and one line for each <tr...>...</tr> in html table
 fn parse_html(infile: &str, outfile: &str, sep: char) {
     // 1. read infile as a String:
     let mut content = read_to_string(infile).expect("Failed to read input file");
@@ -104,18 +105,25 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
     let tablelines = content.lines();
 
     // 6. prepare regex for cell parsing:
-    // The ([^<]*) group is the content of the html table cell
-    let re = Regex::new(r"<td[^>]*>([^<]*)</td>").unwrap();
+    // The (.*) group is the content of the html table cell
+    let re = Regex::new(r"<td[^>]*>(.*)$").unwrap();
 
     // 7. loop on tablelines
     for tableline in tablelines {
-        // tableline is an &str, but we need a mutable String here:
-        let mut tline = tableline.to_string();
-        let mut line = String::new(); // line will be one line of the output file
+        // skip if tableline contains no cell element:
+        if let None = tableline.find("<td") {
+            continue;
+        }
 
-        // 8. loop on cells within line:
-        while let Some(_) = tline.find("<td") {
-            if let Some(caps) = re.captures(&tline) {
+        let mut line = String::new(); // line will be a line of output file
+
+        // 8. split tableline by </td>:
+        let cells: Vec<&str> = tableline.split("</td>").collect();
+
+        // 9. loop on cells within tableline:
+        for cell in cells {
+            // 10. capture cell content and push it to line
+            if let Some(caps) = re.captures(cell) {
                 if caps.len() == 2 {
                     line.push_str(&caps[1]); // push cell text to line
                 } else {
@@ -123,13 +131,11 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
                     return;
                 }
             } else {
-                // no match found
-                println!("Malformed html in input file, line={}", tableline);
-                return;
+                // the element does not conform with html td syntax, ignore it
+                // this may be due to whitespace between </td> and </tr> in the html file
+                continue;
             }
             line.push(sep); //  add separator
-            let i = tline.find("</td>").unwrap(); // we know there is a </td>
-            tline = tline.get((i + 5)..).unwrap().to_string(); // scrap processed part
         }
 
         // remove last added separator:
