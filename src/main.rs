@@ -50,7 +50,7 @@ fn main() {
 /// Read input file as a vec of Strings
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename)
-        .expect("Error while reading input file")
+        .expect("Failed to open input file")
         .lines() // split the string into an iterator of string slices
         .map(String::from) // make each slice into a string
         .collect() // gather them together into a vector
@@ -61,6 +61,7 @@ fn create_table(input: Vec<String>, outfile: &str, sep: char) {
     let mut ofil = File::create(outfile).expect("Cannot create output file");
     writeln!(ofil, "<table class='rustgen'>").expect("Cannot write to file");
 
+    // https://stackoverflow.com/questions/26643688/how-do-i-split-a-string-in-rust
     for line in input {
         writeln!(ofil, "<tr>").expect("Cannot write to file");
         let cells = line.split(sep);
