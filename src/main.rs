@@ -139,7 +139,7 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         }
 
         // remove last added separator:
-        line.pop();
+        line.pop(); // I do not use the result, so no unwrap()
 
         // write line to file:
         writeln!(ofil, "{}", &line).expect("Failed writing to output file");

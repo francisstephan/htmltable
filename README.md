@@ -108,7 +108,7 @@ let readresult: Vec<String> = read_to_string(filename)
 ```
 There is no `close` instruction: a file gets closed when it gets out of scope - or when a panic occurs.
 
-To check if file named `some_file_name` exists, do:
+To check if a file named `some_file_name` exists, do:
 ```rust
 use std::path::Path;
 
@@ -196,7 +196,7 @@ for cell in cells {
     ...
 ```
 
-`lines()` is a sepcialized version of `split` which splits a String with the '\n' linefeed char:
+`lines()` is a specialized version of `split` which splits a String with the '\n' linefeed char:
 ```rust
 let tablelines = content.lines();
 ```
@@ -207,6 +207,7 @@ for tableline in tablelines {
    ...
 }
 ```
+And guess what: tableline is of type `&str`.
 
 ### 4.4 Regular expressions
 
