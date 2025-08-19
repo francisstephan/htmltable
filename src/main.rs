@@ -8,7 +8,7 @@ use std::path::Path;
 /// Program to build an html table from a list of lines with optional separator
 /// and conversely to convert html table to CSV (using comma or any separator character)
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version)]
 struct Args {
     /// Path of input file, relative to current path
     #[arg(short, long)]
@@ -38,7 +38,6 @@ fn main() {
         println!("Error: input file {} does not exist", args.input);
         return;
     }
-
     if !args.reverse {
         let readresult: Vec<String> = read_lines(&args.input);
         create_table(readresult, &args.output, args.separator);
@@ -50,10 +49,10 @@ fn main() {
 /// Read input file as a vec of Strings
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename)
-        .expect("Failed to open input file")
-        .lines() // split the string into an iterator of string slices
+        .expect("Failed to open input file") // print message, then panic
+        .lines() // split the string into an iterator of string slices Lines<'_>
         .map(String::from) // make each slice into a string
-        .collect() // gather them together into a vector
+        .collect() // transform Lines<'_> into a Vec<String>
 }
 
 /// Create html table from csv (or equivalent with other separators)
@@ -68,7 +67,7 @@ fn create_table(input: Vec<String>, outfile: &str, sep: char) {
         for cell in cells {
             write!(ofil, "<td>{}</td>", cell).expect("Cannot write cell to file");
         }
-        writeln!(ofil, "").expect("Cannot write to file");
+        writeln!(ofil, "").expect("Cannot write to file"); // add line feed (writeln)
         writeln!(ofil, "</tr>").expect("Cannot write to file");
     }
 
@@ -147,4 +146,5 @@ fn parse_html(infile: &str, outfile: &str, sep: char) {
         println!("{}", &line);
     }
     // No need to close files: they get closed when going out of scope
+    // or in case of panic
 }
